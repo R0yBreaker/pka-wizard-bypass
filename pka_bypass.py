@@ -298,6 +298,10 @@ def pka_hash(password: str) -> str:
     """Compute the PASS hash for a given password: MD5(SALT + password), uppercase hex."""
     return hashlib.md5(_SALT + password.encode('utf-8')).hexdigest().upper()
 
+# PT 6.0 reads the VALUE attribute from XML to recover the salt (Latin-1 → UTF-8 encoded).
+# Patching this ensures the bypass works across all PT versions.
+_CORRECT_VALUE = _SALT.decode('latin-1').encode('utf-8')
+
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
@@ -373,6 +377,11 @@ def main():
 
     # ── Patch XML ─────────────────────────────────────────────────────────────
     new_xml = xml[:m.start(1)] + new_hash.encode() + xml[m.end(1):]
+
+    # Fix VALUE attribute (needed for PT 6.0 compatibility)
+    vm = re.search(rb'VALUE="([^"]*)"', new_xml)
+    if vm:
+        new_xml = new_xml[:vm.start(1)] + _CORRECT_VALUE + new_xml[vm.end(1):]
 
     # ── Re-encrypt ────────────────────────────────────────────────────────────
     try:
