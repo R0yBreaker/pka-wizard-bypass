@@ -43,6 +43,7 @@ Get the hash with `--info` first.
 ## Tested On
 
 - Cisco Packet Tracer 9.0 (Windows x64)
+- Cisco Packet Tracer 6.0 (Windows x64)
 
 Other versions may work if they use the same encryption constants. If you test on a different version, please open an issue with results.
 
